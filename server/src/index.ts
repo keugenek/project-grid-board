@@ -7,28 +7,21 @@ import { z } from 'zod';
 
 // Import schema types
 import { 
-  createBoardInputSchema,
-  updateBoardInputSchema,
-  createBoardItemInputSchema,
-  updateBoardItemInputSchema,
-  getBoardItemsInputSchema,
-  createXmlDiagramInputSchema,
-  updateXmlDiagramInputSchema
+  createItemInputSchema, 
+  updateItemInputSchema,
+  getItemsByParentInputSchema,
+  getItemsByTypeInputSchema,
+  deleteItemInputSchema
 } from './schema';
 
-// Import handler functions
-import { createBoard } from './handlers/create_board';
-import { getBoards } from './handlers/get_boards';
-import { getBoardById } from './handlers/get_board_by_id';
-import { updateBoard } from './handlers/update_board';
-import { deleteBoard } from './handlers/delete_board';
-import { createBoardItem } from './handlers/create_board_item';
-import { getBoardItems } from './handlers/get_board_items';
-import { getBoardItemById } from './handlers/get_board_item_by_id';
-import { updateBoardItem } from './handlers/update_board_item';
-import { deleteBoardItem } from './handlers/delete_board_item';
-import { createXmlDiagram } from './handlers/create_xml_diagram';
-import { updateXmlDiagram } from './handlers/update_xml_diagram';
+// Import handlers
+import { createItem } from './handlers/create_item';
+import { getItems } from './handlers/get_items';
+import { getItemById } from './handlers/get_item_by_id';
+import { getItemsByParent } from './handlers/get_items_by_parent';
+import { getItemsByType } from './handlers/get_items_by_type';
+import { updateItem } from './handlers/update_item';
+import { deleteItem } from './handlers/delete_item';
 
 const t = initTRPC.create({
   transformer: superjson,
@@ -43,55 +36,33 @@ const appRouter = router({
     return { status: 'ok', timestamp: new Date().toISOString() };
   }),
 
-  // Board management routes
-  createBoard: publicProcedure
-    .input(createBoardInputSchema)
-    .mutation(({ input }) => createBoard(input)),
+  // Item management endpoints
+  createItem: publicProcedure
+    .input(createItemInputSchema)
+    .mutation(({ input }) => createItem(input)),
 
-  getBoards: publicProcedure
-    .query(() => getBoards()),
+  getItems: publicProcedure
+    .query(() => getItems()),
 
-  getBoardById: publicProcedure
-    .input(z.object({ id: z.number().positive() }))
-    .query(({ input }) => getBoardById(input.id)),
+  getItemById: publicProcedure
+    .input(z.object({ id: z.number() }))
+    .query(({ input }) => getItemById(input.id)),
 
-  updateBoard: publicProcedure
-    .input(updateBoardInputSchema)
-    .mutation(({ input }) => updateBoard(input)),
+  getItemsByParent: publicProcedure
+    .input(getItemsByParentInputSchema)
+    .query(({ input }) => getItemsByParent(input)),
 
-  deleteBoard: publicProcedure
-    .input(z.object({ id: z.number().positive() }))
-    .mutation(({ input }) => deleteBoard(input.id)),
+  getItemsByType: publicProcedure
+    .input(getItemsByTypeInputSchema)
+    .query(({ input }) => getItemsByType(input)),
 
-  // Board item management routes
-  createBoardItem: publicProcedure
-    .input(createBoardItemInputSchema)
-    .mutation(({ input }) => createBoardItem(input)),
+  updateItem: publicProcedure
+    .input(updateItemInputSchema)
+    .mutation(({ input }) => updateItem(input)),
 
-  getBoardItems: publicProcedure
-    .input(getBoardItemsInputSchema)
-    .query(({ input }) => getBoardItems(input)),
-
-  getBoardItemById: publicProcedure
-    .input(z.object({ id: z.number().positive() }))
-    .query(({ input }) => getBoardItemById(input.id)),
-
-  updateBoardItem: publicProcedure
-    .input(updateBoardItemInputSchema)
-    .mutation(({ input }) => updateBoardItem(input)),
-
-  deleteBoardItem: publicProcedure
-    .input(z.object({ id: z.number().positive() }))
-    .mutation(({ input }) => deleteBoardItem(input.id)),
-
-  // XML diagram specific routes
-  createXmlDiagram: publicProcedure
-    .input(createXmlDiagramInputSchema)
-    .mutation(({ input }) => createXmlDiagram(input)),
-
-  updateXmlDiagram: publicProcedure
-    .input(updateXmlDiagramInputSchema)
-    .mutation(({ input }) => updateXmlDiagram(input)),
+  deleteItem: publicProcedure
+    .input(deleteItemInputSchema)
+    .mutation(({ input }) => deleteItem(input)),
 });
 
 export type AppRouter = typeof appRouter;
