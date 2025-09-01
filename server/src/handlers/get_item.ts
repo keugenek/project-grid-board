@@ -1,21 +1,32 @@
+import { db } from '../db';
+import { itemsTable } from '../db/schema';
 import { type GetItemInput, type Item } from '../schema';
+import { eq } from 'drizzle-orm';
 
-export async function getItem(input: GetItemInput): Promise<Item | null> {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is fetching a single item by ID from the database.
-    // It should return the item if found, or null if not found.
-    return Promise.resolve({
-        id: input.id,
-        board_id: 1,
-        title: "Sample Item",
-        description: "This is a placeholder item",
-        status: 'todo',
-        xml_content: null,
-        position_x: 100,
-        position_y: 100,
-        width: 200,
-        height: 150,
-        created_at: new Date(),
-        updated_at: new Date()
-    } as Item);
-}
+export const getItem = async (input: GetItemInput): Promise<Item | null> => {
+  try {
+    // Query for the item by ID
+    const result = await db.select()
+      .from(itemsTable)
+      .where(eq(itemsTable.id, input.id))
+      .execute();
+
+    if (result.length === 0) {
+      return null;
+    }
+
+    const item = result[0];
+    
+    // Convert real (numeric) fields back to numbers
+    return {
+      ...item,
+      position_x: parseFloat(item.position_x.toString()),
+      position_y: parseFloat(item.position_y.toString()),
+      width: parseFloat(item.width.toString()),
+      height: parseFloat(item.height.toString())
+    };
+  } catch (error) {
+    console.error('Get item failed:', error);
+    throw error;
+  }
+};

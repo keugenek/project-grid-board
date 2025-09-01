@@ -1,8 +1,21 @@
+import { db } from '../db';
+import { itemsTable } from '../db/schema';
 import { type GetItemsByBoardInput, type Item } from '../schema';
+import { eq, asc } from 'drizzle-orm';
 
 export async function getItemsByBoard(input: GetItemsByBoardInput): Promise<Item[]> {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is fetching all items belonging to a specific board from the database.
-    // It should return a list of items for the given board_id, ordered by creation time or position.
-    return [];
+  try {
+    // Query all items for the specified board, ordered by creation time
+    const results = await db.select()
+      .from(itemsTable)
+      .where(eq(itemsTable.board_id, input.board_id))
+      .orderBy(asc(itemsTable.created_at))
+      .execute();
+
+    // Return results directly - real columns are already numbers
+    return results;
+  } catch (error) {
+    console.error('Failed to get items by board:', error);
+    throw error;
+  }
 }

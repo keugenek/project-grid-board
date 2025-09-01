@@ -1,8 +1,21 @@
+import { db } from '../db';
+import { itemsTable } from '../db/schema';
 import { type GetItemInput } from '../schema';
+import { eq } from 'drizzle-orm';
 
-export async function deleteItem(input: GetItemInput): Promise<{ success: boolean }> {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is deleting an item from the database.
-    // It should remove the item with the specified ID and return a success status.
-    return Promise.resolve({ success: true });
-}
+export const deleteItem = async (input: GetItemInput): Promise<{ success: boolean }> => {
+  try {
+    const result = await db.delete(itemsTable)
+      .where(eq(itemsTable.id, input.id))
+      .execute();
+
+    // Result contains information about affected rows
+    // If no rows were affected, the item didn't exist
+    const success = (result.rowCount ?? 0) > 0;
+    
+    return { success };
+  } catch (error) {
+    console.error('Item deletion failed:', error);
+    throw error;
+  }
+};

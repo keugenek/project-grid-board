@@ -1,8 +1,20 @@
+import { db } from '../db';
+import { boardsTable } from '../db/schema';
 import { type Board } from '../schema';
+import { desc } from 'drizzle-orm';
 
-export async function getBoards(): Promise<Board[]> {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is fetching all boards from the database.
-    // It should return a list of all available boards with their basic information.
-    return [];
-}
+export const getBoards = async (): Promise<Board[]> => {
+  try {
+    // Fetch all boards ordered by most recently updated first
+    const results = await db.select()
+      .from(boardsTable)
+      .orderBy(desc(boardsTable.updated_at))
+      .execute();
+
+    // Return results as-is since no numeric conversions needed for boards table
+    return results;
+  } catch (error) {
+    console.error('Failed to fetch boards:', error);
+    throw error;
+  }
+};
